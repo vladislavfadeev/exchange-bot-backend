@@ -122,6 +122,7 @@ class ChangerBankAccount(models.Model):
         max_length=50,
         blank=True)
     isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.owner} - {self.name} - {self.currency}'
@@ -156,6 +157,7 @@ class UserBankAccount(models.Model):
         max_length=50,
         blank=True)
     isActive = models.BooleanField(default=True)
+    isDeleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.owner} - {self.name} - {self.currency}'
@@ -201,6 +203,7 @@ class ChangerOffer(models.Model):
         auto_now=True
     )
     isActive = models.BooleanField(default=False)
+    isDeleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.owner} - {self.currency}'

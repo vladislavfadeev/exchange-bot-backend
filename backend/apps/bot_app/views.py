@@ -1,4 +1,4 @@
-from stat import FILE_ATTRIBUTE_REPARSE_POINT
+import re
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, viewsets
@@ -11,6 +11,7 @@ from django.shortcuts import render
 from apps.bot_app.data_actions import views_actions
 from apps.bot_app.serializers import (
     AllBanksNameSerializer,
+    ChangerBankChekerSerializer,
     ChangerBanksSerializer,
     ChangerProfileSerializer,
     CurrencyListSerializer,
@@ -82,11 +83,12 @@ class OfferView(viewsets.ModelViewSet):
         'bannerName',
         'currency',
         'rate',
-        'banks',
+        'banks__id',
         'minAmount',
         'maxAmount',
         'dateCreated',
         'isActive',
+        'isDeleted',
     ]
     
 
@@ -97,17 +99,32 @@ class ChangerBankAccountView(viewsets.ModelViewSet):
     serializer_class = ChangerBanksSerializer
     filter_backends = (
         DjangoFilterBackend,
-        filters.SearchFilter
     )
-    search_fields = ['currency__name']
     filterset_fields = [
         'name',
         'bankAccount',
         'owner',
-        'currency',
+        'currency__name',
         'isActive',
+        'isDeleted'
     ]
 
+    @action(detail=False, methods=['post'])
+    def checker_info(self, request, *args, **kwargs):
+
+        banks_id = request.data['banks_id']
+        response_data = {}
+
+        for i in banks_id:
+
+            queryset = ChangerOffer.objects.filter(banks__id = i)
+            serializer = ChangerBankChekerSerializer(queryset, many=True)
+
+            response_data[i] = serializer.data
+
+        return Response(response_data)
+
+    
 
 class UserBankAccountView(viewsets.ModelViewSet):
 
@@ -156,144 +173,7 @@ class TransactionsView(viewsets.ModelViewSet):
         'user',
         'changerBank',
         'userBank',
+        'claims',
+        'isCompleted'
     ]
 
-
-
-
-# class CustomerViewSet(viewsets.ModelViewSet):
-#     queryset = Customer.objects.all()
-#     serializer_class = CustomerSerializer
-
-
-# class CurrencyPairAPIList(generics.ListAPIView):
-#     permission_classes = (IsAuthenticated,)
-#     authentication_classes = (TokenAuthentication, )
-#     queryset = CurrencyPair.objects.all()
-#     serializer_class = CurrencyPairSerializer
-
-
-# class ChangerAPIList(generics.ListAPIView):
-#     queryset = Changer.objects.all()
-#     serializer_class = ChangerListSerializer
-
-
-# class ChangerBankAccountAPIViewSet(viewsets.ModelViewSet):
-#     queryset = Changer.objects.all()
-#     serializer_class = ChangerBankAccountSerializer
-
-
-# class RequestViewSet(viewsets.ModelViewSet):
-#     queryset = RequestModel.objects.all()
-#     serializer_class = RequestSerializer
-
-
-# class ResponseViewSet(viewsets.ModelViewSet):
-#     queryset = ResponseModel.objects.all()
-#     serializer_class = ResponseSerializer
-
-#     @action(detail=True, methods=['get'])
-#     def responses(self, request, *args, **kwargs):
-#         queryset = views_actions.ResponseViewDataActions.all_responses(request,
-#                                                                        *args,
-#                                                                        **kwargs)
-#         serializer = ResponseSerializer(queryset, many=True)
-
-#         return Response(serializer.data)
-
-#     def create(self, request):
-
-#         data = views_actions.ResponseViewDataActions.create_action(request)
-#         serializer = ResponseSerializer(data=data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         print(request.headers)
-#         return Response({'post': serializer.data})
-
-
-# class CustomerChoiseViewSet(viewsets.ModelViewSet):
-#     queryset = CustomerChoice.objects.all()
-#     serializer_class = CustomerChoiceSerializer
-
-#     def create(self, request):
-#         print(request)
-#         data = views_actions.ChoiseViewDataActions.create_action(request)
-#         serializer = CustomerChoiceSerializer(data=data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-
-#         return Response({'post': serializer.data})
-
-
-# class TransactionViewSet(viewsets.ModelViewSet):
-#     queryset = Transaction.objects.all()
-#     serializer_class = TransactionSerializer
-
-#     def create(self, request):
-
-#         data = views_actions.TransactionViewDataActions.create_action(request)
-#         serializer = TransactionSerializer(data=data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-
-#         return Response({'post': serializer.data})
-
-
-# class WomenAPIList(generics.ListCreateAPIView):
-#     queryset = Women.objects.all()
-#     serializer_class = WomenSerializer
-
-
-# class WomenAPIUpdate(generics.UpdateAPIView):
-#     queryset = Women.objects.all()
-#     serializer_class = WomenSerializer
-
-
-# class WomenAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Women.objects.all()
-#     serializer_class = WomenSerializer
-
-
-# class WomenAPIView(APIView):
-#     def get(self, request):
-#         queryset = Women.objects.all()
-#         return Response({'posts': WomenSerializer(queryset, many=True).data})
-
-#     def post(self, request):
-#         serializer = WomenSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-
-#         return Response({'post': serializer.data})
-
-#     def put(self, request, *args, **kwargs):
-#         pk = kwargs.get('pk', None)
-#         if not pk:
-#             return Response({'error': 'Method PUT is not allowed'})
-
-#         try:
-#             instance = Women.objects.get(pk=pk)
-#         except:
-#             return Response({'error': 'Object is not exist'})
-
-#         serializer = WomenSerializer(data=request.data, instance=instance)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         return Response({'post': serializer.data})
-
-#     def delete(self, request, *args, **kwargs):
-#         pk = kwargs.get('pk', None)
-#         if not pk:
-#             return Response({'error': 'Method delete is not allowed'})
-
-#         try:
-#             Women.objects.filter(pk=pk).delete()
-#         except:
-#             return Response({'error': 'Object is not exist'})
-
-#         return Response({'post': f'Post {pk} has been deleted'})
-
-
-# class WomenAPIView(generics.ListAPIView):
-#     queryset = Women.objects.all()
-#     serializer_class = WomenSerializer
