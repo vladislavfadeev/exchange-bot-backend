@@ -1,4 +1,4 @@
-import re
+from json import loads, dumps
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, viewsets
@@ -6,12 +6,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-from django.forms import model_to_dict
-from django.shortcuts import render
-from apps.bot_app.data_actions import views_actions
 from apps.bot_app.serializers import (
     AllBanksNameSerializer,
-    ChangerBankChekerSerializer,
     ChangerBanksSerializer,
     ChangerProfileSerializer,
     CurrencyListSerializer,
@@ -39,16 +35,16 @@ from rest_framework.generics import (
 
 
 
-class UserInitView(CreateAPIView, UpdateAPIView):
+class UserInitView(CreateAPIView, UpdateAPIView, ListAPIView):
 
     permission_classes = (IsAuthenticated, )
     queryset = BotUser.objects.all()
     serializer_class = UserInitSerializer
 
-    # def post(self, request, pk):
-    #     data = BotUser.objects.all()
-    #     content = {'message': 'Hello, World!'}
-    #     return Response(content)
+    def get(self, request):
+        queryset = BotUser.objects.all()
+        content = [obj.tg for obj in queryset]
+        return Response(content)
 
 
 class AllBankNameView(ListAPIView):
@@ -83,14 +79,15 @@ class OfferView(viewsets.ModelViewSet):
         'bannerName',
         'currency',
         'rate',
-        'banks__id',
         'minAmount',
         'maxAmount',
         'dateCreated',
         'isActive',
         'isDeleted',
+        'owner__online',
     ]
-    
+
+
 
 class ChangerBankAccountView(viewsets.ModelViewSet):
 
@@ -106,25 +103,107 @@ class ChangerBankAccountView(viewsets.ModelViewSet):
         'owner',
         'currency__name',
         'isActive',
-        'isDeleted'
+        'isDeleted',
     ]
 
-    @action(detail=False, methods=['post'])
-    def checker_info(self, request, *args, **kwargs):
+    @action(detail=False, methods=['get'])
+    def checker(self, request, *args, **kwargs):
 
-        banks_id = request.data['banks_id']
-        response_data = {}
+        owner = request.GET.get('owner')
+        isDeleted = True if request.GET.get('isDeleted') == 'true' else False
 
-        for i in banks_id:
+        queryset = ChangerBankAccount.objects.filter(owner=owner, isDeleted=isDeleted)
+        banks_serializer = ChangerBanksSerializer(queryset, many=True)
+        banks_data = banks_serializer.data
 
-            queryset = ChangerOffer.objects.filter(banks__id = i)
-            serializer = ChangerBankChekerSerializer(queryset, many=True)
+        for i in banks_data:
 
-            response_data[i] = serializer.data
+            counter = 0
+            ref_queryset = ChangerOffer.objects.filter(
+                refBanks = i['id'],
+                isActive=True,
+                isDeleted=False)
+            curr_queryset = ChangerOffer.objects.filter(
+                currencyBanks = i['id'],
+                isActive=True,
+                isDeleted=False)
 
-        return Response(response_data)
+            for ref in ref_queryset:
+                if ref.refBanks.count() == 1:
+                    counter += 1
 
+            for curr in curr_queryset:
+                if curr.currencyBanks.count() == 1:
+                    counter += 1
+
+            i['will_deactivate'] = counter
+
+        return Response(banks_data)
     
+
+    @action(detail=True, methods=['patch'])
+    def status_setter(self, request, *args, **kwargs):
+
+        obj = self.get_object()
+        serializer = ChangerBanksSerializer(
+            obj,
+            data=request.data,
+            partial=True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(serializer.errors, status=400)
+        
+        data = serializer.data
+        is_active = data.get('isActive')
+        is_deleted = data.get('isDeleted')
+
+        if not is_active or is_deleted:
+
+            r_queryset = ChangerOffer.objects.filter(refBanks=obj.id)
+            r_serializer = OfferSerializer(data=r_queryset, many=True)
+            r_serializer.is_valid()
+            r_data = loads(dumps(r_serializer.data))
+
+            c_queryset = ChangerOffer.objects.filter(currencyBanks=obj.id)
+            c_serializer = OfferSerializer(data=c_queryset, many=True)
+            c_serializer.is_valid()
+            c_data = loads(dumps(c_serializer.data))
+
+            for i in r_data:
+
+                for r in i['refBanks']:
+                    if r['id'] == obj.id:
+                        i['refBanks'].remove(r)
+                        i['refBanks_id'] = i['refBanks']
+
+                if not i['refBanks']:
+                    i['isActive'] = False
+                
+                r_offer = ChangerOffer.objects.get(id=i['id'])
+                r_serializer = OfferSerializer(r_offer, data=i, partial=True)
+                if r_serializer.is_valid():
+                    r_serializer.save()
+
+            for i in c_data:
+
+                for c in i['refBanks']:
+                    if c['id'] == obj.id:
+                        i['refBanks'].remove(c)
+
+                if not i['refBanks']:
+                    i['isActive'] = False
+
+                c_offer = ChangerOffer.objects.get(id=i['id'])
+                c_serializer = OfferSerializer(c_offer, data=i, partial=True)
+                if c_serializer.is_valid():
+                    c_serializer.update()
+
+        return Response(data)
+
+
 
 class UserBankAccountView(viewsets.ModelViewSet):
 
@@ -139,7 +218,7 @@ class UserBankAccountView(viewsets.ModelViewSet):
     filterset_fields = [
         'name',
         'bankAccount',
-        'owner',
+        'owner__tg',
         'currency',
         'isActive',
     ]
@@ -174,6 +253,7 @@ class TransactionsView(viewsets.ModelViewSet):
         'changerBank',
         'userBank',
         'claims',
-        'isCompleted'
+        'isCompleted',
+        'changerAccepted'
     ]
 

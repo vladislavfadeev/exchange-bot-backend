@@ -7,6 +7,12 @@ name = "pypi"
 django = "*"
 djangorestframework = "*"
 django-filter = "*"
+python-dateutil = "*"
+django-timedeltafield = "*"
+psycopg2-binary = "*"
+gunicorn = "*"
+environ = "*"
+django-environ = "*"
 
 [dev-packages]
 autopep8 = "*"

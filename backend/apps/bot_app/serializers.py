@@ -1,17 +1,15 @@
 from rest_framework import serializers
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
 from apps.db_model.models import (
     AllMongolianBanks,
     BotUser,
     Changer,
     ChangerBankAccount,
     ChangerOffer,
+    ChangerScore,
     Currency,
     Transaction,
     UserBankAccount,
 )
-import io
 
 
 
@@ -52,29 +50,18 @@ class ChangerBanksSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ChangerBankChekerSerializer(serializers.ModelSerializer):
 
-    banks = ChangerBanksSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = ChangerOffer
-        fields = ('id', 'currency', 'banks')
-
-
-class OfferSerializer(serializers.ModelSerializer):
-
-    banks = ChangerBanksSerializer(many=True, read_only=True)
+class ChangerScoreSerializer(serializers.ModelSerializer):
     
-    banks_id = serializers.PrimaryKeyRelatedField(
-        queryset=ChangerBankAccount.objects.all(), 
-        source='banks',
-        many=True,
-        write_only=True,
-    )
-
     class Meta:
-        model = ChangerOffer
-        fields = '__all__'
+        model = ChangerScore
+        fields = (
+            'total_amount',
+            'total_transactions',
+            'avg_amount',
+            'avg_time'
+        )
+
 
 
 class ChangerProfileSerializer(serializers.ModelSerializer):
@@ -82,6 +69,45 @@ class ChangerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Changer
         fields = '__all__'
+
+
+
+class OfferSerializer(serializers.ModelSerializer):
+
+    refBanks = ChangerBanksSerializer(many=True, read_only=True)
+    
+    refBanks_id = serializers.PrimaryKeyRelatedField(
+        queryset=ChangerBankAccount.objects.all(), 
+        source='refBanks',
+        many=True,
+        write_only=True,
+    )
+    currencyBanks = ChangerBanksSerializer(many=True, read_only=True)
+    
+    currencyBanks_id = serializers.PrimaryKeyRelatedField(
+        queryset=ChangerBankAccount.objects.all(), 
+        source='currencyBanks',
+        many=True,
+        write_only=True,
+    )
+    class Meta:
+        model = ChangerOffer
+        fields = '__all__'
+
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        score_data = ChangerScore.objects.get(owner = instance.owner)
+        sr = ChangerScoreSerializer(score_data)
+
+        data['owner_score'] = sr.data
+        # data['score'] = instance.job_result.user.username     # в instance объект класса, указанный в model=
+        # data['status'] = instance.job_result.status
+        # data['created'] = instance.job_result.created
+        # data['completed'] = instance.job_result.completed
+        return data
+
 
 
 class TransactionsSerializer(serializers.ModelSerializer):

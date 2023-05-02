@@ -1,5 +1,8 @@
-from locale import currency
+from datetime import datetime, timedelta
+from typing import Iterable, Optional
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 
@@ -28,7 +31,7 @@ class BotUser(models.Model):
     isActive = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.name} {self.lastName}'
+        return f'{self.tg} - {self.name} {self.lastName}'
     
     class Meta:
         verbose_name = 'Пользователь'
@@ -57,13 +60,21 @@ class Changer(models.Model):
         auto_now_add=True
     )
     isActive = models.BooleanField(default=True)
+    online = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.name} {self.lastName}'
+        return f'{self.tg} - {self.name} {self.lastName}'
+
+    def save(self, *args, **kwargs):
+        obj, bool = ChangerScore.objects.get_or_create(owner=self)
+        if bool:
+            obj.save()
+        return super().save()
     
     class Meta:
         verbose_name = 'Обменник'
         verbose_name_plural = 'Обменники'
+
 
 
 class Currency(models.Model):
@@ -184,9 +195,15 @@ class ChangerOffer(models.Model):
         max_length=10
     )
     rate = models.FloatField('Курс в MNT')
-    banks = models.ManyToManyField(
+    refBanks = models.ManyToManyField(
         ChangerBankAccount,
-        verbose_name= 'Банки',
+        verbose_name= 'Банки MNT',
+        related_name= 'ref_banks',
+    )
+    currencyBanks = models.ManyToManyField(
+        ChangerBankAccount,
+        verbose_name= 'Валютные банки',
+        related_name= 'currency_banks',
     )
     minAmount = models.FloatField(
         'Минимальная сумма сделки',
@@ -208,9 +225,11 @@ class ChangerOffer(models.Model):
     def __str__(self):
         return f'{self.owner} - {self.currency}'
     
+    
     class Meta:
         verbose_name = 'Оффер'
         verbose_name_plural = 'Офферы'
+
 
 
 class OfferResponse(models.Model):
@@ -234,14 +253,63 @@ class OfferResponse(models.Model):
     dateCreated = models.DateTimeField(auto_now_add=True)
     sellBank = models.CharField(max_length=50)
     buyBank = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
     
     class Meta:
         verbose_name = 'Отклик на оффер'
         verbose_name_plural = 'Отклики на офферы'
     
+
+
+class ChangerScore(models.Model):
+
+    owner = models.OneToOneField(
+        Changer,
+        related_name='score',
+        on_delete = models.CASCADE,
+        primary_key = True
+    )
+    total_amount = models.FloatField(
+        default=0,
+        null=True,
+        blank=True
+    )
+    total_transactions = models.IntegerField(
+        default=0,
+        null=True,
+        blank=True
+    )
+    total_claims = models.IntegerField(
+        default=0,
+        null=True,
+        blank=True
+    )
+
+    @property
+    def avg_amount(self):
+        try:
+            avg_amount = self.total_amount / self.total_transactions
+        except ZeroDivisionError:
+            avg_amount = 0
+        return avg_amount
+    
+    @property
+    def avg_time(self):
+
+        total_time = 0
+        queryset = Transaction.objects.filter(
+            changer = self.owner
+        )
+        for i in queryset:
+            total_time += i.react_time
+
+        try:
+            avg_time = total_time / self.total_transactions
+        except ZeroDivisionError:
+            avg_time = 0
+
+        return str(timedelta(seconds=avg_time)).split('.')[0]
+
+
 
 class Transaction(models.Model):
 
@@ -303,11 +371,35 @@ class Transaction(models.Model):
         blank=True
     )
     createDate = models.DateTimeField(auto_now_add=True)
+    react_time = models.FloatField(null=True, blank=True)
+    changerAccepted = models.BooleanField(default=False)
     claims = models.BooleanField(default=False)
     isCompleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return f'{self.id} - {self.sellCurrency}'
+    
+    def save(self, *args, **kwargs):
+
+        if self.changerSendMoneyDate:
+            user_time = self.userSendMoneyDate
+            changer_time = self.changerSendMoneyDate
+            delta = changer_time - user_time
+            value = delta.total_seconds()
+            self.react_time = value
+        
+        if self.userAcceptDate:
+            score = ChangerScore.objects.get(owner = self.changer)
+            score.total_amount += self.buyAmount
+            score.total_transactions += 1
+            score.save()
+
+        if self.claims:
+            score = ChangerScore.objects.get(owner = self.changer)
+            score.total_claims += 1
+            score.save()
+
+        super().save(*args, **kwargs)
     
     class Meta:
         verbose_name = 'Совершенный перевод'

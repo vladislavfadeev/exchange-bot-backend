@@ -1,7 +1,12 @@
 backend/apps/bot_app/__pycache__/*
 backend/apps/bot_app/migrations/__pycache__/*
 backend/apps/bot_app/data_actions/__pycache__/*
+backend/apps/db_model/__pycache__/*
+backend/apps/db_model/migrations/*
 backend/core_backend/__pycache__/*
 bot_backend/db.sqlite3
 exchange_bot_backend.zip
 backend/db.sqlite3
+backend/1db.sqlite3
+backend/.env
+
