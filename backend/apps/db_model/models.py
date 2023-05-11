@@ -300,7 +300,8 @@ class ChangerScore(models.Model):
             changer = self.owner
         )
         for i in queryset:
-            total_time += i.react_time
+            if i.react_time is not None:
+                total_time += i.react_time
 
         try:
             avg_time = total_time / self.total_transactions

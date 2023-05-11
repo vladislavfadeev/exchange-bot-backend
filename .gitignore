@@ -1,3 +1,4 @@
+backend/apps/__pycache__/*
 backend/apps/bot_app/__pycache__/*
 backend/apps/bot_app/migrations/__pycache__/*
 backend/apps/bot_app/data_actions/__pycache__/*
@@ -9,4 +10,9 @@ exchange_bot_backend.zip
 backend/db.sqlite3
 backend/1db.sqlite3
 backend/.env
-
+.env
+Dockerfile
+backend/django_warnings.log
+backend/static
+django_warnings.log
+venv/
