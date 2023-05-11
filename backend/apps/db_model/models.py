@@ -8,7 +8,7 @@ from django.dispatch import receiver
 
 class BotUser(models.Model):
 
-    tg = models.IntegerField(primary_key=True)
+    tg = models.BigIntegerField(primary_key=True)
     name = models.CharField(
         'Имя',
         max_length=30,
@@ -41,7 +41,7 @@ class BotUser(models.Model):
 
 class Changer(models.Model):
 
-    tg = models.IntegerField(primary_key=True)
+    tg = models.BigIntegerField(primary_key=True)
     name = models.CharField(
         'Имя',
         max_length=30
@@ -114,7 +114,7 @@ class ChangerBankAccount(models.Model):
         'Наименование',
         max_length=50
     )
-    bankAccount = models.IntegerField(
+    bankAccount = models.BigIntegerField(
         'Номер счета',
         unique=True
     )
@@ -149,7 +149,7 @@ class UserBankAccount(models.Model):
         'Наименование',
         max_length=50
     )
-    bankAccount = models.IntegerField(
+    bankAccount = models.BigIntegerField(
         'Номер счета',
         unique=True
     )
