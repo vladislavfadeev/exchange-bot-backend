@@ -218,7 +218,7 @@ class UserBankAccountView(viewsets.ModelViewSet):
     filterset_fields = [
         'name',
         'bankAccount',
-        'owner__tg',
+        'owner',
         'currency',
         'isActive',
     ]
