@@ -180,6 +180,11 @@ class UserBankAccount(models.Model):
 
 class ChangerOffer(models.Model):
 
+    TYPE_CHOICES = (
+        ('sell', 'Продажа валюты'),
+        ('buy', 'Покупка валюты'),
+    )
+
     owner = models.ForeignKey(
         Changer,
         verbose_name='Владелец',
@@ -221,7 +226,7 @@ class ChangerOffer(models.Model):
     )
     isActive = models.BooleanField(default=False)
     isDeleted = models.BooleanField(default=False)
-    type = models.CharField(max_length=5)
+    type = models.CharField(max_length=4, choices=TYPE_CHOICES)
 
     def __str__(self):
         return f'{self.owner} - {self.currency}'
@@ -344,7 +349,7 @@ class Transaction(models.Model):
         max_length=500,
         blank=True
     )
-    type = models.CharField(max_length=5)
+    type = models.CharField(max_length=4)
     createDate = models.DateTimeField(auto_now_add=True)
     react_time = models.FloatField(null=True, blank=True)
     changerAccepted = models.BooleanField(default=False)
