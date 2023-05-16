@@ -221,42 +221,15 @@ class ChangerOffer(models.Model):
     )
     isActive = models.BooleanField(default=False)
     isDeleted = models.BooleanField(default=False)
+    type = models.CharField(max_length=5)
 
     def __str__(self):
         return f'{self.owner} - {self.currency}'
-    
     
     class Meta:
         verbose_name = 'Оффер'
         verbose_name_plural = 'Офферы'
 
-
-
-class OfferResponse(models.Model):
-
-    offer = models.ForeignKey(
-        ChangerOffer,
-        on_delete=models.CASCADE
-    )
-    changer = models.ForeignKey(
-        Changer,
-        on_delete=models.CASCADE
-    )
-    user = models.ForeignKey(
-        BotUser,
-        on_delete=models.CASCADE
-    )
-    currency = models.CharField(max_length=10)
-    userAmount = models.FloatField()
-    userRate = models.FloatField(blank=True)
-    isActive = models.BooleanField(default=True)
-    dateCreated = models.DateTimeField(auto_now_add=True)
-    sellBank = models.CharField(max_length=50)
-    buyBank = models.CharField(max_length=50)
-    
-    class Meta:
-        verbose_name = 'Отклик на оффер'
-        verbose_name_plural = 'Отклики на офферы'
     
 
 
@@ -371,6 +344,7 @@ class Transaction(models.Model):
         max_length=500,
         blank=True
     )
+    type = models.CharField(max_length=5)
     createDate = models.DateTimeField(auto_now_add=True)
     react_time = models.FloatField(null=True, blank=True)
     changerAccepted = models.BooleanField(default=False)

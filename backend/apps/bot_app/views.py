@@ -199,7 +199,7 @@ class ChangerBankAccountView(viewsets.ModelViewSet):
                 c_offer = ChangerOffer.objects.get(id=i['id'])
                 c_serializer = OfferSerializer(c_offer, data=i, partial=True)
                 if c_serializer.is_valid():
-                    c_serializer.update()
+                    c_serializer.save()
 
         return Response(data)
 
