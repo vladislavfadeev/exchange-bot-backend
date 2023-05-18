@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import Iterable, Optional
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
@@ -226,7 +225,7 @@ class ChangerOffer(models.Model):
     )
     isActive = models.BooleanField(default=False)
     isDeleted = models.BooleanField(default=False)
-    type = models.CharField(max_length=4, choices=TYPE_CHOICES)
+    type = models.CharField(max_length=4, choices=TYPE_CHOICES, blank=True)
 
     def __str__(self):
         return f'{self.owner} - {self.currency}'
@@ -268,7 +267,7 @@ class ChangerScore(models.Model):
             avg_amount = self.total_amount / self.total_transactions
         except ZeroDivisionError:
             avg_amount = 0
-        return avg_amount
+        return round(avg_amount)
     
     @property
     def avg_time(self):
@@ -349,7 +348,7 @@ class Transaction(models.Model):
         max_length=500,
         blank=True
     )
-    type = models.CharField(max_length=4)
+    type = models.CharField(max_length=4, blank=True)
     createDate = models.DateTimeField(auto_now_add=True)
     react_time = models.FloatField(null=True, blank=True)
     changerAccepted = models.BooleanField(default=False)

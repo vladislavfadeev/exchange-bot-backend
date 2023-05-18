@@ -85,6 +85,7 @@ class OfferView(viewsets.ModelViewSet):
         'isActive',
         'isDeleted',
         'owner__online',
+        'type',
     ]
 
 
@@ -254,6 +255,7 @@ class TransactionsView(viewsets.ModelViewSet):
         'userBank',
         'claims',
         'isCompleted',
-        'changerAccepted'
+        'changerAccepted',
+        'type',
     ]
 
