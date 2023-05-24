@@ -15,4 +15,5 @@ Dockerfile
 backend/django_warnings.log
 backend/static
 django_warnings.log
+.vscode/*
 venv/

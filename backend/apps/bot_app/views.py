@@ -213,14 +213,12 @@ class UserBankAccountView(viewsets.ModelViewSet):
     serializer_class = UserBanksSerializer
     filter_backends = (
         DjangoFilterBackend,
-        filters.SearchFilter
     )
-    search_fields = ['currency__name']
     filterset_fields = [
         'name',
         'bankAccount',
         'owner',
-        'currency',
+        'currency__name',
         'isActive',
     ]
 
@@ -239,6 +237,12 @@ class ChangerProfileView(viewsets.ModelViewSet):
         'dateCreated',
         'isActive',
     ]
+
+    @action(detail=False, methods=['get'])
+    def id_list(self, request, *args, **kwargs):
+        queryset = Changer.objects.all()
+        content = [obj.tg for obj in queryset]
+        return Response(content)
 
 
 class TransactionsView(viewsets.ModelViewSet):

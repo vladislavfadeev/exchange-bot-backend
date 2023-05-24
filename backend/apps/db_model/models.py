@@ -311,8 +311,8 @@ class Transaction(models.Model):
         UserBankAccount,
         on_delete=models.CASCADE
     )
-    sellCurrency = models.CharField(max_length=10)
-    buyCurrency = models.CharField(max_length=10)
+    offerCurrency = models.CharField(max_length=10)
+    refCurrency = models.CharField(max_length=10)
     sellAmount = models.FloatField()
     buyAmount = models.FloatField()
     rate = models.FloatField()
