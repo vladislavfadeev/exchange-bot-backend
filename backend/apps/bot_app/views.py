@@ -241,7 +241,7 @@ class ChangerProfileView(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def id_list(self, request, *args, **kwargs):
         queryset = Changer.objects.all()
-        content = [obj.tg for obj in queryset]
+        content = [obj.tg for obj in queryset if obj.online]
         return Response(content)
 
 
