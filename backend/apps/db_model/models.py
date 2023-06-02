@@ -221,6 +221,10 @@ class ChangerOffer(models.Model):
     )
     dateCreated = models.DateTimeField(
         'Дата создания',
+        auto_now_add=True
+    )
+    dateEdited = models.DateTimeField(
+        'Последнее редактирование',
         auto_now=True
     )
     isActive = models.BooleanField(default=False)

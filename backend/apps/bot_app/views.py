@@ -88,6 +88,22 @@ class OfferView(viewsets.ModelViewSet):
         'type',
     ]
 
+    @action(detail=True, methods=['get'])
+    def offer_valid_checker(self, request, *args, **kwargs):
+        try:
+            obj = self.get_object()
+            owner = obj.owner
+            data = {
+                'edited': obj.dateEdited,
+                'owner_online': owner.online
+            }
+            return Response(data=data, status=200)
+        except Exception as e:
+            data = {
+                'exception': repr(e)
+            }
+            return Response(status=404)
+
 
 
 class ChangerBankAccountView(viewsets.ModelViewSet):
