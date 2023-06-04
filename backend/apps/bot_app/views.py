@@ -1,10 +1,10 @@
 from json import loads, dumps
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
+from django.utils import timezone
 from rest_framework import filters
 from apps.bot_app.serializers import (
     AllBanksNameSerializer,
@@ -28,7 +28,6 @@ from apps.db_model.models import (
 )
 from rest_framework.generics import (
     CreateAPIView,
-    GenericAPIView,
     UpdateAPIView,
     ListAPIView,
 )
@@ -91,10 +90,11 @@ class OfferView(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def offer_valid_checker(self, request, *args, **kwargs):
         try:
-            obj = self.get_object()
+            obj: ChangerOffer = self.get_object()
             owner = obj.owner
+            last_edit = timezone.localtime(obj.dateEdited)
             data = {
-                'edited': obj.dateEdited,
+                'edited': last_edit,
                 'owner_online': owner.online
             }
             return Response(data=data, status=200)
@@ -102,7 +102,7 @@ class OfferView(viewsets.ModelViewSet):
             data = {
                 'exception': repr(e)
             }
-            return Response(status=404)
+            return Response(data=data, status=404)
 
 
 
