@@ -83,7 +83,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core_backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -128,7 +127,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ulaanbaatar'
 
 USE_I18N = True
 
