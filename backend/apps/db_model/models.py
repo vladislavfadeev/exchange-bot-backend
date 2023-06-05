@@ -358,7 +358,7 @@ class Transaction(models.Model):
     isCompleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.id} - {self.sellCurrency}'
+        return f'{self.id} - {self.changer} - {self.user} - {self.offerCurrency}'
     
     def save(self, *args, **kwargs):
 
