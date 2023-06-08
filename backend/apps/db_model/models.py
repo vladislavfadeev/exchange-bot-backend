@@ -200,12 +200,12 @@ class ChangerOffer(models.Model):
     refBanks = models.ManyToManyField(
         ChangerBankAccount,
         verbose_name= 'Банки MNT',
-        related_name= 'ref_banks',
+        related_name= 'offers_ref',
     )
     currencyBanks = models.ManyToManyField(
         ChangerBankAccount,
         verbose_name= 'Валютные банки',
-        related_name= 'currency_banks',
+        related_name= 'offers_curr',
     )
     minAmount = models.FloatField(
         'Минимальная сумма сделки',

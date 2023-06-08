@@ -121,6 +121,8 @@ class ChangerBankAccountView(viewsets.ModelViewSet):
         'currency__name',
         'isActive',
         'isDeleted',
+        'offers_ref__id',
+        'offers_curr__id'
     ]
 
     @action(detail=False, methods=['get'])
