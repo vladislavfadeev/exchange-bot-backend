@@ -17,3 +17,4 @@ backend/static
 django_warnings.log
 .vscode/*
 venv/
+.venv/
