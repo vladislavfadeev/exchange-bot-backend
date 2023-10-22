@@ -43,12 +43,15 @@ class UserInitView(CreateAPIView, UpdateAPIView, ListAPIView):
         content = [obj.tg for obj in queryset]
         return Response(content)
     
-    def post(self, request, *args, **kwargs):
-        user = self.queryset.filter(tg=request.POST.get('tg')).exists()
+    def post(self, request):
+        tg = request.POST.get('tg')
+        user = self.queryset.filter(tg=tg).first()
         if user:
-            return self.patch(request, *args, **kwargs)
-
-
+            serializer = self.get_serializer(user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(data='ok', status=201)
+        return Response(data='not match', status=400)
 
 class AllBankNameView(ListAPIView):
     permission_classes = (IsAuthenticated,)
