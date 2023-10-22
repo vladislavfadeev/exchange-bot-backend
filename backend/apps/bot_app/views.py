@@ -42,6 +42,12 @@ class UserInitView(CreateAPIView, UpdateAPIView, ListAPIView):
         queryset = BotUser.objects.all()
         content = [obj.tg for obj in queryset]
         return Response(content)
+    
+    def post(self, request, *args, **kwargs):
+        user = self.queryset.filter(tg=request.POST.get('tg')).exists()
+        if user:
+            return self.patch(request, *args, **kwargs)
+
 
 
 class AllBankNameView(ListAPIView):
