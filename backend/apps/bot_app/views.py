@@ -51,7 +51,7 @@ class UserInitView(CreateAPIView, UpdateAPIView, ListAPIView):
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             return Response(data='ok', status=201)
-        return Response(data='not match', status=400)
+        return super().post(request)
 
 class AllBankNameView(ListAPIView):
     permission_classes = (IsAuthenticated,)
