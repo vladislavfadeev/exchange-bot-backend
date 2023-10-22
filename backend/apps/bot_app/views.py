@@ -181,11 +181,11 @@ class ChangerBankAccountView(viewsets.ModelViewSet):
                     r_serializer.save()
 
             for i in c_data:
-                for c in i["refBanks"]:
+                for c in i["currencyBanks"]:
                     if c["id"] == obj.id:
-                        i["refBanks"].remove(c)
+                        i["currencyBanks"].remove(c)
 
-                if not i["refBanks"]:
+                if not i["currencyBanks"]:
                     i["isActive"] = False
 
                 c_offer = ChangerOffer.objects.get(id=i["id"])

@@ -8,6 +8,7 @@ class BotUser(models.Model):
     lastName = models.CharField("Фамилия", max_length=30, blank=True)
     phone = models.CharField("Телефон", max_length=15, blank=True)
     dateCreated = models.DateTimeField("Дата создания", auto_now_add=True)
+    tg_username = models.CharField("Username", max_length=50, blank=True, null=True)
     isActive = models.BooleanField(default=True)
 
     def __str__(self):
@@ -217,12 +218,17 @@ class Transaction(models.Model):
             delta = changer_time - user_time
             value = delta.total_seconds()
             self.react_time = value
-
-        if self.userAcceptDate:
+            
             score = ChangerScore.objects.get(owner=self.changer)
             score.total_amount += self.buyAmount
             score.total_transactions += 1
             score.save()
+
+        # if self.userAcceptDate:
+        #     score = ChangerScore.objects.get(owner=self.changer)
+        #     score.total_amount += self.buyAmount
+        #     score.total_transactions += 1
+        #     score.save()
 
         if self.claims:
             score = ChangerScore.objects.get(owner=self.changer)
