@@ -193,6 +193,7 @@ class ChangerBankAccountView(viewsets.ModelViewSet):
                 for c in i["currencyBanks"]:
                     if c["id"] == obj.id:
                         i["currencyBanks"].remove(c)
+                        i["currencyBanks_id"] = i["currencyBanks"]
 
                 if not i["currencyBanks"]:
                     i["isActive"] = False
