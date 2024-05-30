@@ -218,7 +218,7 @@ class Transaction(models.Model):
             delta = changer_time - user_time
             value = delta.total_seconds()
             self.react_time = value
-            
+
             score = ChangerScore.objects.get(owner=self.changer)
             score.total_amount += self.buyAmount
             score.total_transactions += 1
@@ -240,3 +240,39 @@ class Transaction(models.Model):
     class Meta:
         verbose_name = "Совершенный перевод"
         verbose_name_plural = "Совершенные переводы"
+
+
+class CryptoRate(models.Model):
+    pair_name = models.CharField("Название пары", max_length=50)
+    grade_1 = models.IntegerField("Grade 1", blank=True, null=True, default=0)
+    grade_2 = models.IntegerField("Grade 2", blank=True, null=True, default=0)
+    grade_1_rate = models.FloatField("Курс grade_1", blank=True, null=True, default=0)
+    grade_2_rate = models.FloatField("Курс grade_2", blank=True, null=True, default=0)
+
+    def __str__(self):
+        return f"{self.id} - {self.pair_name}"
+    
+    class Meta:
+        verbose_name = "Криптовалютная пара"
+        verbose_name_plural = "Криптовалютные пары"
+
+
+
+class CryptoOrder(models.Model):
+    user = models.ForeignKey(BotUser, on_delete=models.DO_NOTHING)
+    changer = models.ForeignKey(Changer, on_delete=models.DO_NOTHING)
+    pair_name = models.CharField("Название пары", max_length=50)
+    rate = models.FloatField()
+    sell_amount = models.FloatField()
+    buy_amount = models.FloatField()
+    dateCreated = models.DateTimeField("Дата создания", auto_now_add=True)
+    dateEdited = models.DateTimeField("Последнее редактирование", auto_now=True)
+    is_complete = models.BooleanField(default=False)
+
+    def __str__(self):
+        user = f"@{self.user.tg_username}" if len(self.user.tg_username) > 0 else self.user.tg
+        return f"{self.id} - {self.changer.name} - {user} - {self.changer.name}"
+
+    class Meta:
+        verbose_name = "Заявка на обмен криптовалюты"
+        verbose_name_plural = "Заявки на обмен криптовалюты"
