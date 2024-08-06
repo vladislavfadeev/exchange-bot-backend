@@ -156,6 +156,7 @@ class ChangerScore(models.Model):
     )
     total_amount = models.FloatField(default=0, null=True, blank=True)
     total_transactions = models.IntegerField(default=0, null=True, blank=True)
+    total_cr_transactions = models.IntegerField(default=0, null=True, blank=True)
     total_claims = models.IntegerField(default=0, null=True, blank=True)
 
     @property
@@ -243,11 +244,14 @@ class Transaction(models.Model):
 
 
 class CryptoRate(models.Model):
+    owner = models.ForeignKey(Changer, verbose_name="Владелец", on_delete=models.CASCADE)
+    offer_name = models.CharField("Название оффера", max_length=50, null=True)
     pair_name = models.CharField("Название пары", max_length=50)
-    grade_1 = models.IntegerField("Grade 1", blank=True, null=True, default=0)
-    grade_2 = models.IntegerField("Grade 2", blank=True, null=True, default=0)
-    grade_1_rate = models.FloatField("Курс grade_1", blank=True, null=True, default=0)
-    grade_2_rate = models.FloatField("Курс grade_2", blank=True, null=True, default=0)
+    min_amount = models.FloatField("Минимальная сумма обмена", blank=True, null=True, default=0)
+    buy_rate = models.IntegerField("Курс покупки(в фиате)", blank=True, null=True, default=0)
+    sell_rate = models.IntegerField("Курс продажи(в фиате)", blank=True, null=True, default=0)
+    banks = models.CharField("Поддерживаемые банки", max_length=512, null=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.id} - {self.pair_name}"
@@ -262,17 +266,37 @@ class CryptoOrder(models.Model):
     user = models.ForeignKey(BotUser, on_delete=models.DO_NOTHING)
     changer = models.ForeignKey(Changer, on_delete=models.DO_NOTHING)
     pair_name = models.CharField("Название пары", max_length=50)
-    rate = models.FloatField()
-    sell_amount = models.FloatField()
-    buy_amount = models.FloatField()
+    rate = models.FloatField("Курс обмена")
+    sell_amount = models.FloatField("Обменник перевел")
+    buy_amount = models.FloatField("Обменник получил")
     dateCreated = models.DateTimeField("Дата создания", auto_now_add=True)
     dateEdited = models.DateTimeField("Последнее редактирование", auto_now=True)
-    is_complete = models.BooleanField(default=False)
+    order_type = models.CharField("Тип заявки", max_length=4)
+    is_complete = models.BooleanField("Заверешенный", default=False)
+    is_declined = models.BooleanField("Отклонено", default=False)
 
     def __str__(self):
         user = f"@{self.user.tg_username}" if len(self.user.tg_username) > 0 else self.user.tg
         return f"{self.id} - {self.changer.name} - {user} - {self.changer.name}"
+    
+    def save(self, *args, **kwargs):
+        if self.is_complete and not self.is_declined:
+            score = ChangerScore.objects.get(owner=self.changer)
+            score.total_cr_transactions += 1
+            score.save()
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Заявка на обмен криптовалюты"
         verbose_name_plural = "Заявки на обмен криптовалюты"
+
+
+class RateModel(models.Model):
+    text = models.TextField("Текст сообщения курс", null=True)
+
+    def __str__(self):
+        return "Текст сообщения 'Курс'"
+
+    class Meta:
+        verbose_name = "Сообщение курс"
+        verbose_name_plural = "Сообщение курс"

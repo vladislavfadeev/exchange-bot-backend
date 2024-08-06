@@ -9,6 +9,9 @@ from apps.bot_app.views import (
     TransactionsView,
     UserBankAccountView,
     UserInitView,
+    CryptoOrderView,
+    CryptoRateView,
+    RateView
 )
 
 router = routers.SimpleRouter(trailing_slash=False)
@@ -17,6 +20,9 @@ router.register(r"changer_banks", ChangerBankAccountView),
 router.register(r"user_banks", UserBankAccountView),
 router.register(r"changer_profile", ChangerProfileView),
 router.register(r"transactions", TransactionsView),
+router.register(r"crypto_rate", CryptoRateView),
+router.register(r"crypto_orders", CryptoOrderView),
+router.register(r"get_rate", RateView),
 
 
 urlpatterns = [

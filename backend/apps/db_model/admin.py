@@ -9,6 +9,9 @@ from apps.db_model.models import (
     ChangerScore,
     Currency,
     Transaction,
+    CryptoRate,
+    CryptoOrder,
+    RateModel
 )
 
 
@@ -21,6 +24,9 @@ admin.site.register(ChangerOffer)
 admin.site.register(AllMongolianBanks)
 admin.site.register(ChangerScore)
 admin.site.register(Transaction)
+admin.site.register(CryptoRate)
+admin.site.register(CryptoOrder)
+admin.site.register(RateModel)
 
 
 admin.site.site_title = 'Панель администрирования OnlineShargaBot'

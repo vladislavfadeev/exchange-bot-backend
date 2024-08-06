@@ -9,6 +9,9 @@ from apps.db_model.models import (
     Currency,
     Transaction,
     UserBankAccount,
+    CryptoOrder,
+    CryptoRate,
+    RateModel
 )
 
 
@@ -47,7 +50,7 @@ class ChangerBanksSerializer(serializers.ModelSerializer):
 class ChangerScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChangerScore
-        fields = ("total_amount", "total_transactions", "avg_amount", "avg_time")
+        fields = ("total_amount", "total_transactions", "total_cr_transactions", "avg_amount", "avg_time")
 
 
 class ChangerProfileSerializer(serializers.ModelSerializer):
@@ -111,3 +114,28 @@ class TransactionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = "__all__"
+
+
+class CryptoRateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CryptoRate
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        score_data = ChangerScore.objects.get(owner=instance.owner)
+        sr = ChangerScoreSerializer(score_data)
+        data["owner_score"] = sr.data
+        return data
+
+
+class CryptoOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CryptoOrder
+        fields = "__all__"
+
+
+class RateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RateModel
+        fields = '__all__'

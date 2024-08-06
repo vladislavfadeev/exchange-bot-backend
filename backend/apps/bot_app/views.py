@@ -15,6 +15,9 @@ from apps.bot_app.serializers import (
     TransactionsSerializer,
     UserBanksSerializer,
     UserInitSerializer,
+    CryptoRateSerializer,
+    CryptoOrderSerializer,
+    RateSerializer
 )
 from apps.db_model.models import (
     AllMongolianBanks,
@@ -25,6 +28,9 @@ from apps.db_model.models import (
     Currency,
     Transaction,
     UserBankAccount,
+    CryptoOrder,
+    CryptoRate,
+    RateModel
 )
 from rest_framework.generics import (
     CreateAPIView,
@@ -42,16 +48,17 @@ class UserInitView(CreateAPIView, UpdateAPIView, ListAPIView):
         queryset = BotUser.objects.all()
         content = [obj.tg for obj in queryset]
         return Response(content)
-    
+
     def post(self, request):
-        tg = request.POST.get('tg')
+        tg = request.POST.get("tg")
         user = self.queryset.filter(tg=tg).first()
         if user:
             serializer = self.get_serializer(user, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
-            return Response(data='ok', status=201)
+            return Response(data="ok", status=201)
         return super().post(request)
+
 
 class AllBankNameView(ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -257,3 +264,45 @@ class TransactionsView(viewsets.ModelViewSet):
         "changerAccepted",
         "type",
     ]
+
+
+class CryptoRateView(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = CryptoRate.objects.all()
+    serializer_class = CryptoRateSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = [
+        "pair_name",
+        "min_amount",
+        "buy_rate",
+        "sell_rate",
+        "banks",
+        "is_active",
+        "owner__online"
+    ]
+
+
+class CryptoOrderView(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = CryptoOrder.objects.all()
+    serializer_class = CryptoOrderSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = [
+        "user",
+        "changer",
+        "pair_name",
+        "rate",
+        "order_type",
+        "sell_amount",
+        "buy_amount",
+        "dateCreated",
+        "dateEdited",
+        "is_complete",
+        "is_declined",
+    ]
+
+
+class RateView(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = RateModel.objects.all()
+    serializer_class = RateSerializer
