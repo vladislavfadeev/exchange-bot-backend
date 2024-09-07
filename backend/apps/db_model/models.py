@@ -248,8 +248,8 @@ class CryptoRate(models.Model):
     offer_name = models.CharField("Название оффера", max_length=50, null=True)
     pair_name = models.CharField("Название пары", max_length=50)
     min_amount = models.FloatField("Минимальная сумма обмена", blank=True, null=True, default=0)
-    buy_rate = models.IntegerField("Курс покупки(в фиате)", blank=True, null=True, default=0)
-    sell_rate = models.IntegerField("Курс продажи(в фиате)", blank=True, null=True, default=0)
+    buy_rate = models.FloatField("Курс покупки(в фиате)", blank=True, null=True, default=0)
+    sell_rate = models.FloatField("Курс продажи(в фиате)", blank=True, null=True, default=0)
     banks = models.CharField("Поддерживаемые банки", max_length=512, null=True)
     is_active = models.BooleanField(default=True)
 

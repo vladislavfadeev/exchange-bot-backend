@@ -7,3 +7,4 @@ class DbModelConfig(AppConfig):
     label = 'db_model'
     verbose_name = 'База данных Бота'
 
+ 

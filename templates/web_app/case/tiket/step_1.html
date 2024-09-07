@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 text-center" id="main-block">
+    <form method="post" id="ticket_form">
+        <div class="col-md-11 mt-3 mx-auto">
+          <h4 class="text-muted">Выберите дату поездки:</h4>
+          {% for date in date_choices %}
+            <button class="btn btn-primary" id="date_choice" data-value="{{date.value}}">
+          {% endfor %}
+          <button type="submit" class="btn btn-primary">
+            <!-- <span class="submit-spinner submit-spinner_hide me-2"></span>Уменьшить</button> -->
+        </div>
+    </form>
+</div>
+
+<div class="container mt-5 text-center hide-block" id="price-block">
+    <h1>Тут информация будет о ценах.</h1>
+    <h3>Тут еще что-то напишем</h3>
+    <ul>
+        <li>Тут</li>
+        <li>Вот тут</li>
+        <li>И тут</li>
+    </ul>
+</div>
+
+<div class="container mt-5 text-center hide-block" id="howto-block">
+    <h1>Это информационная страница, тут будет справка.</h1>
+    <h3>Подробно все опишем, может даже видео прислюнявим</h3>
+    <h3>Тут еще что-то напишем</h3>
+    <ul>
+        <li>Тут</li>
+        <li>Вот тут</li>
+        <li>И тут</li>
+    </ul>
+    <h3>Ну и тут тоже, пожалуй</h3>
+    <ul>
+        <li>Тут</li>
+        <li>Вот тут</li>
+        <li>И тут</li>
+    </ul>
+</div>
+
+{% endblock%}
+
+{% block javascripts %} {% endblock %}

@@ -18,6 +18,14 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 
+def reduce_path(file_name, times):
+    result = os.path.realpath(file_name)
+    for _ in range(times):
+        result = os.path.dirname(result)
+    return result
+
+TMPL_DIR = reduce_path(__file__, 2)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -34,6 +42,7 @@ SECRET_KEY = env('SECRET')
 DEBUG=env('DEBUG')
 
 ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(' ')
+# CSRF_TRUSTED_ORIGINS = ['https://2a89-89-208-105-37.ngrok-free.app']
 
 
 # Application definition
@@ -51,6 +60,7 @@ INSTALLED_APPS = [
 
     'apps.bot_app',
     'apps.db_model',
+    'apps.web_app',
 ]
 
 MIDDLEWARE = [
@@ -68,7 +78,7 @@ ROOT_URLCONF = 'core_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR, "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -138,10 +148,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = '/static/'
-#STATICFILES_DIRS = [
-#    os.path.join(BASE_DIR, 'static/'),
-#]
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATICFILES_DIRS = [
+   os.path.join(BASE_DIR, 'static/'),
+]
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

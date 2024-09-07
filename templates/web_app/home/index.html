@@ -1,0 +1,45 @@
+{% extends 'web_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5 text-center" id="main-block">
+    <h1>Вы находитесь в главном меню</h1>
+    <h2>Если вы впервые пользуетесь данным ботом - то настоятельно рекомедуем воспользоваться справкой перед совершением обмена.<br>
+        Выберите соответствующий пункт меню:</h2>
+        <div class="d-grid gap-2 col-9 mx-auto mt-5">
+            {% csrf_token %}
+            <button type="button" id="travel-btn" class="btn btn-lg btn-outline-primary mt-3 shadow" style="font-size: 20px; font-weight: 700;">Обменять валюту</button>
+            <button type="button" id="post-btn" class="btn btn-lg btn-outline-primary mt-3 shadow" style="font-size: 20px; font-weight: 700;">Обменять криптовалюту</button>
+            <button type="button" id="post-btn" class="btn btn-lg btn-outline-primary mt-3 shadow" style="font-size: 20px; font-weight: 700;">Посмотреть курс</button>
+        </div>
+</div>
+
+<div class="container mt-5 text-center hide-block" id="price-block">
+    <h1>Тут информация будет о ценах.</h1>
+    <h3>Тут еще что-то напишем</h3>
+    <ul>
+        <li>Тут</li>
+        <li>Вот тут</li>
+        <li>И тут</li>
+    </ul>
+</div>
+
+<div class="container mt-5 text-center hide-block" id="howto-block">
+    <h1>Это информационная страница, тут будет справка.</h1>
+    <h3>Подробно все опишем, может даже видео прислюнявим</h3>
+    <h3>Тут еще что-то напишем</h3>
+    <ul>
+        <li>Тут</li>
+        <li>Вот тут</li>
+        <li>И тут</li>
+    </ul>
+    <h3>Ну и тут тоже, пожалуй</h3>
+    <ul>
+        <li>Тут</li>
+        <li>Вот тут</li>
+        <li>И тут</li>
+    </ul>
+</div>
+
+{% endblock%}
+
+{% block javascripts %} {% endblock %}

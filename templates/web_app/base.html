@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <title>Travel Bot Template</title>
+    <link rel="stylesheet" href="/static/web_app/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="/static/css/style.css"> -->
+</head>
+<style>
+   .show-block {
+      display: block;
+   }
+   .hide-block {
+      display: none;
+   }
+</style>
+
+
+<body>
+   {% include 'web_app/include/header.html' %}
+
+   <div class="content">
+        {% block content %} {% endblock %}
+   </div>
+
+   {% include 'web_app/include/scripts.html' %}
+   {% block javascripts %} {% endblock javascripts %}
+</body>
+{% include 'web_app/include/footer.html' %}
+</html>
