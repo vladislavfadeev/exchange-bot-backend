@@ -4,7 +4,7 @@ from urllib.parse import unquote
 
 # from local dir
 # from ownsecrets import BOT_TOKEN
-BOT_TOKEN = '5973397507:AAEIzJHsq9c4CYYFaCGruXwPi01fBkxgRYE'
+BOT_TOKEN = 'BOT_TOKEN'
 
 secret_key = hmac.new(b'WebAppData', bytes(BOT_TOKEN, encoding='utf-8'), sha256).digest()
 
